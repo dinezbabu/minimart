@@ -31,5 +31,7 @@ public class MinimartPromotionresource {
         }
         return promotionProduct;
     }
+
+
 }
 
