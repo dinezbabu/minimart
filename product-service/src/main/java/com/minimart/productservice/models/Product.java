@@ -1,5 +1,10 @@
 package com.minimart.productservice.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -13,7 +18,7 @@ public class Product {
     private Date modifiedDate;
     private String createdBy;
     private String modifiedBy;
-
+    private ProductDetails productDetails;
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
@@ -37,6 +42,14 @@ public class Product {
 
     public void setPromotionId(String promotionId) {
         this.promotionId = promotionId;
+    }
+
+    public ProductDetails getProductDetails() {
+        return productDetails;
+    }
+
+    public void setProductDetails(ProductDetails productDetails) {
+        this.productDetails = productDetails;
     }
 
     public Date getCreatedDate() {

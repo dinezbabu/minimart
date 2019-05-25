@@ -1,5 +1,6 @@
 package com.minimart.productservice.models;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class ProductDetails {
     private boolean isPromotionApplied;
     private Date productExpiryDate;
     private Date createdDate;
-    private Date modifiedDate;
+    private LocalDateTime modifiedDate;
     private String createdBy;
     private String modifiedBy;
 
@@ -173,11 +174,11 @@ public class ProductDetails {
         this.createdDate = createdDate;
     }
 
-    public Date getModifiedDate() {
+    public LocalDateTime getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
+    public void setModifiedDate(LocalDateTime modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 
