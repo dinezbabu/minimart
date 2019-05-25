@@ -1,9 +1,6 @@
 package com.minimart.productservice.utilities;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -32,10 +29,13 @@ public class xlutilities {
     public static List<ProductDetails> productDetailsList= new ArrayList<>();
     final String PATH="/Users/dbabu/Desktop/MiniMartGrocery.xlsx";
     final String SHEETNAME="ProductDetail";
+    Sheet XMLSHEET= null;
+    Workbook WORKBOOK=null;
 
     public static void main(String args[]) {
         xlutilities xlutilities = new xlutilities();
-        xlutilities.GetProductBasedOnBarCode("4234235671");
+        xlutilities.UpdateProductQuantity("423423567");
+        xlutilities.GetProductBasedOnBarCode("423423567");
     }
 
     public  JSONObject GetProductBasedOnBarCode(String barcode) {
@@ -55,15 +55,32 @@ public class xlutilities {
         {
             LOGGER.loggerError(this.getClass().getName(),new Throwable().getStackTrace()[0].getMethodName(),"Failed To Fetch BarCode :"+barcode,ex);
         }
+        System.out.println(jsonStr);
         return null;
+    }
+    private void ReadXMLFile()
+    {
+        try {
+            if(XMLSHEET==null) {
+                FileInputStream file = new FileInputStream(new File(PATH));
+                WORKBOOK = new XSSFWorkbook(file);
+                XMLSHEET = WORKBOOK.getSheet(SHEETNAME);
+            }
+        }
+        catch (FileNotFoundException ex )
+        {
+            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"File Not Found : "+PATH,ex);
+        }
+        catch (IOException ex)
+        {
+            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"IO Exception",ex);
+        }
     }
     private void GetAllProducts(){
         try {
             if(productDetailsList.size()==0) {
-                FileInputStream file = new FileInputStream(new File(PATH));
-                Workbook workbookRead = new XSSFWorkbook(file);
-                Sheet sheetRead = workbookRead.getSheet(SHEETNAME);
-                Iterator<Row> iteratorRow = sheetRead.iterator();
+                ReadXMLFile();
+                Iterator<Row> iteratorRow = XMLSHEET.iterator();
                 while (iteratorRow.hasNext()) {
                     Row currentRow = iteratorRow.next();
                     if (currentRow.getRowNum() != 0) {
@@ -92,24 +109,35 @@ public class xlutilities {
                 }
             }
         }
-        catch (FileNotFoundException ex )
+        catch (Exception ex)
         {
-            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"File Not Found : "+PATH,ex);
+            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Exception",ex);
         }
-        catch (IOException ex)
-        {
-            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"IO Exception",ex);
-        }
+
     }
 
     private void UpdateProductQuantity(String barcode)
     {
         try{
+           ReadXMLFile();
+            for (Row productROW : XMLSHEET) {
+                if(productROW.getRowNum()!=0 && df.formatCellValue(productROW.getCell(2)).equalsIgnoreCase(barcode.trim())) {
+                    if(Integer.parseInt(df.formatCellValue(productROW.getCell(6)))!=0) {
+                        productROW.getCell(6).setCellValue(Integer.parseInt(df.formatCellValue(productROW.getCell(6))) - 1);
+                        LOGGER.loggerInfo(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Product QTY Updated Succesfully For BarCode : "+barcode);
+                        WORKBOOK.write(new FileOutputStream(new File(PATH)));
+                    }
+                    else
+                    {
+                        LOGGER.loggerInfo(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Product Has Zero Inventory For BarCode : "+barcode);
+                    }
+                }
+            }
 
         }
         catch (Exception ex)
         {
-            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Failed To Update BarCode :"+barcode,ex);
+            LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Failed To Update Quantity For The BarCode :"+barcode,ex);
         }
     }
 
