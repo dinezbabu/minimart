@@ -34,7 +34,6 @@ public class xlutilities {
 
     public static void main(String args[]) {
         xlutilities xlutilities = new xlutilities();
-        xlutilities.UpdateProductQuantity("423423567");
         xlutilities.GetProductBasedOnBarCode("423423567");
     }
 
@@ -45,8 +44,9 @@ public class xlutilities {
         try {
             ObjectMapper Obj = new ObjectMapper();
             jsonStr = Obj.writeValueAsString(productDetails.get());
-            new JSONObject(jsonStr.toString());
+            UpdateProductQuantity(barcode);
             LOGGER.loggerInfo(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Sucessfully Fetched BarCode : "+barcode);
+            return new JSONObject(jsonStr.toString());
         }
         catch (JsonProcessingException ex){
             LOGGER.loggerError(this.getClass().getName(),new Object(){}.getClass().getEnclosingMethod().getName(),"Failed To Fetch BarCode :"+barcode,ex);
@@ -55,7 +55,6 @@ public class xlutilities {
         {
             LOGGER.loggerError(this.getClass().getName(),new Throwable().getStackTrace()[0].getMethodName(),"Failed To Fetch BarCode :"+barcode,ex);
         }
-        System.out.println(jsonStr);
         return null;
     }
     private void ReadXMLFile()
